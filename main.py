@@ -6,6 +6,7 @@ from server import Server
 HOST_NAME = 'localhost'
 PORT_NUMBER = 8080
 
+
 if __name__ == '__main__':
     with HTTPServer((HOST_NAME, PORT_NUMBER), Server) as httpd:
         print(time.asctime(), 'Server UP - %s:%s' % (HOST_NAME, PORT_NUMBER))
