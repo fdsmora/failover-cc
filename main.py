@@ -16,7 +16,7 @@ def start_monitor(port):
             pass
 
 def start_instance(port):
-    with HTTPServer((HOST_NAME, port), Monitor) as app1:
+    with HTTPServer((HOST_NAME, port), Application) as app1:
         print(time.asctime(), 'Server UP - %s:%s' % (HOST_NAME, port))
         try:    
             app1.serve_forever()

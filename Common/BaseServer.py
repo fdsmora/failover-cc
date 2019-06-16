@@ -1,17 +1,25 @@
 #!/usr/bin/python
 from http.server import BaseHTTPRequestHandler
 from urllib.parse import urlparse
-from Common.GETHANDLER import GETHANDLER
 from Common.PostHelper import PostHelper
 from abc import ABC, abstractmethod
+from urllib.parse import urlparse
+
 
 class BaseServer(BaseHTTPRequestHandler, ABC):
   def do_HEAD(self):
     return
 
   def do_GET(self):
-    content=GETHANDLER.handle(self)
-    self.wfile.write(content)
+    response = self.handle_GET()
+    status = 200
+    content_type = "text/plain"
+    self.wfile.write(bytes(response, "UTF-8"))
+
+  def get_action(self):
+    parsed_path = urlparse(self.path)
+    action = parsed_path.geturl().split('/')[-1]
+    return action
     
   def do_POST(self):
     postHelper = PostHelper(self)
@@ -20,10 +28,8 @@ class BaseServer(BaseHTTPRequestHandler, ABC):
 #    print("FORM IS " + str(form))
 
     self.handle_POST()
-
     status = 200
     content_type = "text/plain"
-
     self.send_response(status)
     self.send_header('Content-type', content_type)
     self.end_headers()
@@ -32,6 +38,10 @@ class BaseServer(BaseHTTPRequestHandler, ABC):
 
   @abstractmethod
   def handle_POST(self):
+    pass
+ 
+  @abstractmethod
+  def handle_GET(self):
     pass
     
   def handle_http(self):

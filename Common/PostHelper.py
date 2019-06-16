@@ -1,7 +1,29 @@
 #!/usr/bin/python
 import cgi
 
-class POSTHANDLER():
+class PostHelper():
+    def __init__(self, request):
+        self.request = request
+        self.cgiForm = cgi.FieldStorage(
+            fp = request.rfile,
+            headers = request.headers,
+            environ = { 'REQUEST_METHOD' : 'POST',
+                        'CONTENT_TYPE' : request.headers['Content-Type'],
+                      }) 
+
+    def getForm(self):
+        form = dict()
+        cgiForm = self.cgiForm
+        for field in cgiForm.keys():
+            field_item = cgiForm[field]
+#debug
+            print ("FIELD: %s \n FIELD_ITEM: %s" % (field, field_item))
+            if field_item.filename:
+                form[field]=field_item.filename
+            else:
+                form[field] = field_item.value
+        return form
+
     @staticmethod
     def handle(request):
         content_type = "text/plain"
@@ -24,6 +46,8 @@ class POSTHANDLER():
         # Echo back information about what was posted in the form
         for field in form.keys():
             field_item = form[field]
+#debug
+            print ("FIELD: %s \n FIELD_ITEM: %s" % (field, field_item))
             if field_item.filename:
                 # The field contains an uploaded file
                 file_data = field_item.file.read()
