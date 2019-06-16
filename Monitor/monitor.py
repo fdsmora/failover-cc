@@ -1,20 +1,38 @@
 #!/usr/bin/python
 from http.server import BaseHTTPRequestHandler
 from urllib.parse import urlparse
-from Common.BaseServer import BaseServer 
+from Common.BaseHandler import BaseHandler 
 from Common.Utils import shell
 
 CURL = "/usr/bin/curl"
 
-class Monitor(BaseServer):
+class MonitorHandler(BaseHandler):
+    name = "MonitorHandler"
+    
+    def __init__(self):
+        super().__init__()
+        self.primary = None
+        self.standby = None
+
     def handle_POST(self):
         print (self.form)
     
     def handle_GET(self):
         action = self.get_action()
-    
-        response = ""
-        if action == 'communicate':
-            out, err = shell(CURL, "-i", "http://localhost:8081/spit")
-            response = "ACTION: %s \n OUT: %s \n ERR: %s" % (action, out, err) 
-        return response
+   
+        if action == 'kill-primary':
+            return self.kill_primary()
+
+    def register_app(self,primary, standby):
+        if primary and standby:
+            self.primary = primary
+            self.standby = standby
+           #debug
+            print ("SUCCESSFULLY REGISTERED\nprim: {}:{}\nstby:{}{}".format(primary['hostname'], primary['port'], standby['hostname'], standby['port']))
+        else:
+            self.die("Primary instance and standby instance must be registered together")
+
+    def kill_primary(self):
+        primary_url = "http://{}:{}".format(self.primary["hostname"], self.primary["port"])
+        out, err = shell(CURL, "-i", primary_url + "/die")
+        response = "ACTION: kill-primary \n OUT: %s \n ERR: %s" % (action, out, err) 

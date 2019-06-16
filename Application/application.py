@@ -1,9 +1,15 @@
 #!/usr/bin/python
 from http.server import BaseHTTPRequestHandler
 from urllib.parse import urlparse
-from Common.BaseServer import BaseServer
+from Common.Utils import test_data 
+from Common.BaseHandler import BaseHandler
 
-class Application(BaseServer):
+class ApplicationHandler(BaseHandler):
+    def initialize(self,role):
+        if role == "primary":
+           self._data = test_data
+           self.set_role(role)
+
     def handle_POST(self):
         print ('App: handling POST')
         print (self.form) 
@@ -15,5 +21,6 @@ class Application(BaseServer):
         if action == 'spit':
             response = "I AM APPLICATION"
         return response
-    
-    
+
+    def set_role(self, role):
+        self._role = role
