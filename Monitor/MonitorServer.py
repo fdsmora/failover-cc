@@ -22,18 +22,39 @@ class MonitorServer(BaseServer):
         else:
             self.die("Primary instance and standby instance must be registered together")
 
+    def submit_to_primary(self, action, method, form=None):
+        primary_url = "http://{}:{}".format(self.primary["hostname"], self.primary["port"])
+        out, err = ("","") 
+        if method == "GET":
+            out, err = shell(CURL, "-i", primary_url + "/" + action)
+        else:
+            form_str = " -F ".join("{!s}={!r}".format(key,val) for (key,val) in form.items())
+            #debug
+            print("DEBUG: FORM_STR: " + form_str)
+            out, err = shell(CURL, primary_url + "/" + action, "-F", form_str)
+        
+        return out, err
+
+    def kill_primary(self):
+        out, err = self.submit_to_primary("die", "GET") 
+        return "ACTION: kill-primary \n OUT: %s \n ERR: %s\n" % (out, err) 
+
+    def submit_update(self, form):
+        out, err = self.submit_to_primary("update", "POST", form)
+        return "ACTION: update \n OUT: %s \n ERR: %s\n" % (out, err) 
+
 class MonitorHandler(BaseHandler):
     def handle_POST(self):
-        print (self.form)
+        action = self.get_action()
+        if action == "update":
+            out = self.server.submit_update(self.form)
+            return out
     
     def handle_GET(self):
         action = self.get_action()
    
         if action == 'kill-primary':
-            return self.kill_primary()
+            return self.server.kill_primary()
+    
+         
 
-    def kill_primary(self):
-        server = self.server
-        primary_url = "http://{}:{}".format(server.primary["hostname"], server.primary["port"])
-        out, err = shell(CURL, "-i", primary_url + "/die")
-        return "ACTION: kill-primary \n OUT: %s \n ERR: %s\n" % (out, err) 

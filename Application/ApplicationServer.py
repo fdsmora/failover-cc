@@ -15,6 +15,12 @@ class ApplicationServer(BaseServer):
     
     def get_role(self):
         return self._role
+  
+    def update(self,_map):
+        for k,v in _map.items():
+            if k in self._data:
+                self._data[k] = v
+        return str(self._data)
 
 class ApplicationHandler(BaseHandler):
     def initialize(self,role):
@@ -23,9 +29,12 @@ class ApplicationHandler(BaseHandler):
            self.set_role(role)
 
     def handle_POST(self):
-        print ('App: handling POST')
-        print (self.form) 
-
+    #    print ('App: handling POST')
+        action = self.get_action()
+        if action == "update":
+            out = self.server.update(self.form)
+            return out
+        
     def handle_GET(self):
         action = self.get_action()
     

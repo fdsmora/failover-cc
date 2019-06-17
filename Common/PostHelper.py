@@ -17,7 +17,7 @@ class PostHelper():
         for field in cgiForm.keys():
             field_item = cgiForm[field]
 #debug
-            print ("FIELD: %s \n FIELD_ITEM: %s" % (field, field_item))
+#            print ("FIELD: %s \n FIELD_ITEM: %s" % (field, field_item))
             if field_item.filename:
                 form[field]=field_item.filename
             else:
