@@ -4,12 +4,28 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 from abc import ABC, abstractmethod, abstractproperty
 from urllib.parse import urlparse
 from Common.PostHelper import PostHelper
+from Common.Utils import shell
+
+CURL = "/usr/bin/curl"
 
 class BaseServer(HTTPServer, ABC):
   @abstractproperty
   def name(self):
     pass
   
+  def submit_to_host(self, hostname, port, action, method, form=None):
+      url = "http://{}:{}".format(hostname, port)
+      out, err = ("","") 
+      if method == "GET":
+          out, err = shell(CURL, "-i", url + "/" + action)
+      else:
+          form_str = " -F ".join("{!s}={!r}".format(key,val) for (key,val) in form.items())
+          #debug
+          #print("DEBUG: FORM_STR: " + form_str)
+          out, err = shell(CURL, url + "/" + action, "-F", form_str)
+        
+      return out, err
+
   def die(self, errmsg):
       errmsg = "\n{}:ERR:{}".format(self.name, errmsg)
       print(errmsg)

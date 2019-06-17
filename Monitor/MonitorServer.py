@@ -1,8 +1,6 @@
 #!/usr/bin/python
 from Common.BaseServer import BaseServer, BaseHandler
-from Common.Utils import shell
 
-CURL = "/usr/bin/curl"
 
 class MonitorServer(BaseServer):
     name = "MonitorServer"
@@ -22,25 +20,16 @@ class MonitorServer(BaseServer):
         else:
             self.die("Primary instance and standby instance must be registered together")
 
-    def submit_to_primary(self, action, method, form=None):
-        primary_url = "http://{}:{}".format(self.primary["hostname"], self.primary["port"])
-        out, err = ("","") 
-        if method == "GET":
-            out, err = shell(CURL, "-i", primary_url + "/" + action)
-        else:
-            form_str = " -F ".join("{!s}={!r}".format(key,val) for (key,val) in form.items())
-            #debug
-            print("DEBUG: FORM_STR: " + form_str)
-            out, err = shell(CURL, primary_url + "/" + action, "-F", form_str)
-        
-        return out, err
-
     def kill_primary(self):
-        out, err = self.submit_to_primary("die", "GET") 
+        primary_host = self.primary["hostname"]
+        primary_port = self.primary["port"]
+        out, err = self.submit_to_host(primary_host, primary_port, "die", "GET") 
         return "ACTION: kill-primary \n OUT: %s \n ERR: %s\n" % (out, err) 
 
     def submit_update(self, form):
-        out, err = self.submit_to_primary("update", "POST", form)
+        primary_host = self.primary["hostname"]
+        primary_port = self.primary["port"]
+        out, err = self.submit_to_host(primary_host, primary_port, "update", "POST", form)
         return "ACTION: update \n OUT: %s \n ERR: %s\n" % (out, err) 
 
 class MonitorHandler(BaseHandler):
