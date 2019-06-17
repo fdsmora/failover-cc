@@ -1,0 +1,61 @@
+#!/usr/bin/python
+import sys
+#from optparse import OptionParser
+import argparse
+from main import startup        
+from Common.Utils import shell
+from Common.BaseServer import CURL
+
+
+parser = argparse.ArgumentParser(description='client to test the failover code challenge. \n Please start the system first by running ./main.py')
+#parser = OptionParser(description='client to test the failover code challenge')
+parser.add_argument('-kill-primary',  help='kills the primary instance',  required=False, action="store_true")
+
+update_help = ''' Updates the entries map in the application instance with the corresponding entires specified in -file=update_file. The -file parameter is required. The keys that can be updated are: id, index, guid, isActive, balance, picture, age, eyeColor, name, about, registered, latitude, longitude. The values can be any string and the entries to be updated have to be each entrie per line and the key separated by an equal sign from the value.  This is an example of the contents of 'update_file' where 'id' and 'name' entries are to be updated:
+\n
+id=1234\n
+name=Fernanda \n
+The command will print the updated map from the server, which is returned from it.
+'''
+
+parser.add_argument('-update',  help=update_help, required=False, action="store_true")
+parser.add_argument('-file',  help='File with map that will update', required=False)
+parser.add_argument('-get_state',  help="returns the state of the data map in the specified server. Options are 'primary' and 'standby'. This is useful to check if after the update operation in the primary the data was correctly replicated to the standby ", required=False)
+
+url = "http://localhost:{0}"
+monitor_port = 8080
+primary_port = 8081
+standby_port = 8082
+
+args = parser.parse_args()
+
+
+if args.kill_primary:
+    url = url.format(monitor_port)
+    url = "{0}/kill-primary".format(url)
+    args = ["-i", url]
+    shell(CURL, args )
+elif args.update:
+    if not args.file:
+        print ("-file=update_file parameter is required")
+        sys.exit(1)
+    entries = []
+    with open(args.file, 'r') as f:
+        entries = f.readlines() 
+        entries = [x.strip() for x in entries]
+    form_str = "-F " + " -F ".join(entries)
+    url = url.format(monitor_port)
+    url = "{0}/update".format(url)
+    args = [url]
+    args.extend(form_str.split(" "))
+    out, err =  shell(CURL, args )
+    print(out)
+    
+elif args.get_state:
+    port = primary_port if args.get_state == 'primary' else standby_port
+    url = url.format(port)
+    url = "{0}/get-state".format(url)
+    args = ["-i", url]
+    out, err =shell(CURL, args )
+    print (out)
+    

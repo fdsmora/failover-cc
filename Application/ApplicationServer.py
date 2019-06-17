@@ -51,7 +51,7 @@ class ApplicationHandler(BaseHandler):
         out = ""
         action = self.get_action()
         if action == "update" and self.server.get_role() == PRIMARY:
-            out = self.server.update(self.form)
+            self.server.update(self.form)
         if action == "sync" and self.server.get_role() == STANDBY:
             out = self.server.sync(self.form)
         return out

@@ -9,8 +9,8 @@ HOST_NAME = 'localhost'
 
 def start_monitor(port, primary, standby):
     with MonitorServer((HOST_NAME, port), MonitorHandler) as monitor:
-        print(time.asctime(), 'Monitor server UP - %s:%s' % (HOST_NAME, port))
         monitor.register_app(primary, standby)
+        print(time.asctime(), monitor.name + ' UP - %s:%s' % (HOST_NAME, port))
         try:    
             monitor.serve_forever()
         except KeyboardInterrupt:
@@ -18,8 +18,8 @@ def start_monitor(port, primary, standby):
 
 def start_instance(port, role, standby=None):
     with ApplicationServer((HOST_NAME, port), ApplicationHandler) as app1:
-        print(time.asctime(), 'Application server UP - %s:%s' % (HOST_NAME, port))
         app1.initialize(role, standby)
+        print(time.asctime(), app1.name + ' UP - %s:%s' % (HOST_NAME, port))
         try:    
             app1.serve_forever()
         except KeyboardInterrupt:
