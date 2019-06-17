@@ -26,10 +26,11 @@ test_data =  {
 }
 
 
-def shell(*args):
+def shell(cmd, args):
 #debug
-    debug_str = " ".join(args)
-    print (debug_str)
+    #debug_str = " ".join(args)
+#    print (str(args))
+    args.insert(0,cmd)
     proc = subprocess.Popen(args, stdout=subprocess.PIPE)
     out, err = proc.communicate()
     return out, err

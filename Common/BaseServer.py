@@ -22,10 +22,13 @@ class BaseServer(HTTPServer, ABC):
           if json:
               out, err = shell(CURL, "-X", "POST", url + "/" + action, "-d", form , "-H", "Content-Type: application/json")
           else:
-              form_str = " -F ".join("{!s}={!r}".format(key,val) for (key,val) in form.items())
+              form_str = " -F " + " -F ".join("{!s}={!r}".format(key,val) for (key,val) in form.items())
+              args = [url + "/" + action]
+              args.extend( form_str.split(" "))
+              
           #debug
-          #print("DEBUG: FORM_STR: " + form_str)
-              out, err = shell(CURL, url + "/" + action, "-F", form_str)
+              print("DEBUG: FORM_STR: " + str(form_str))
+              out, err = shell(CURL, args)
         
       return out, err
 

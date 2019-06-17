@@ -19,6 +19,8 @@ class ApplicationServer(BaseServer):
         return self._role
   
     def update(self,_map):
+#debug
+        print ("{}->update, _map is : {}".format(self.name, _map))
         for k,v in _map.items():
             if k in self._data:
                 self._data[k] = v
@@ -40,6 +42,9 @@ class ApplicationServer(BaseServer):
         # as a temporary solution to the standby replication of data as JSON, just do a normal 'update' operation
         return self.update(data)
 
+    def get_state(self):
+        return str(self._data)
+
 class ApplicationHandler(BaseHandler):
     def handle_POST(self):
     #    print ('App: handling POST')
@@ -57,6 +62,8 @@ class ApplicationHandler(BaseHandler):
         response = ""
         if action == "die":
             self.server.die("Requested to die. Farewell...")
+        elif action == "get-state" :
+            response = self.server.get_state()
         
         return response
 
