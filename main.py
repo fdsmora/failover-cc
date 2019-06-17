@@ -1,14 +1,14 @@
 #!/usr/bin/python
 import time
-from http.server import HTTPServer
-from MonitorHandler.monitor import MonitorHandler 
-from ApplicationHandler.application import ApplicationHandler
+from Monitor.MonitorServer import MonitorServer, MonitorHandler
+from Application.ApplicationServer import ApplicationServer, ApplicationHandler
 from multiprocessing import Process
+from Common.Utils import PRIMARY, STANDBY
 
 HOST_NAME = 'localhost'
 
 def start_monitor(port, primary, standby):
-    with HTTPServer((HOST_NAME, port), MonitorHandler) as monitor:
+    with MonitorServer((HOST_NAME, port), MonitorHandler) as monitor:
         print(time.asctime(), 'Server UP - %s:%s' % (HOST_NAME, port))
         monitor.register_app(primary, standby)
         try:    
@@ -17,8 +17,9 @@ def start_monitor(port, primary, standby):
             pass
 
 def start_instance(port):
-    with HTTPServer((HOST_NAME, port), ApplicationHandler) as app1:
+    with ApplicationServer((HOST_NAME, port), ApplicationHandler) as app1:
         print(time.asctime(), 'Server UP - %s:%s' % (HOST_NAME, port))
+        app1.initialize(PRIMARY)
         try:    
             app1.serve_forever()
         except KeyboardInterrupt:

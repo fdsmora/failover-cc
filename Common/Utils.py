@@ -1,6 +1,9 @@
 #!/usr/bin/python
 import subprocess
 
+PRIMARY = "primary"
+STANDBY = "standby"
+
 test_data =  {
     "id": "5d06aabffca870c0de76aa79",
     "index": "0",
@@ -21,6 +24,7 @@ test_data =  {
     "latitude": "-8.768006",
     "longitude": "-103.11563"
 }
+
 
 def shell(*args):
     proc = subprocess.Popen(args, stdout=subprocess.PIPE)

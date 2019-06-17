@@ -1,8 +1,18 @@
 #!/usr/bin/python
-from http.server import BaseHTTPRequestHandler
-from urllib.parse import urlparse
-from Common.Utils import test_data 
-from Common.BaseHandler import BaseHandler
+from Common.Utils import test_data, PRIMARY, STANDBY
+from Common.BaseServer import BaseServer, BaseHandler
+
+class ApplicationServer(BaseServer):
+    def initialize(self,role):
+        if role == PRIMARY:
+           self._data = test_data
+           self.set_role(role)
+
+    def set_role(self, role):
+        self._role = role
+    
+    def get_role(self):
+        return self._role
 
 class ApplicationHandler(BaseHandler):
     def initialize(self,role):
