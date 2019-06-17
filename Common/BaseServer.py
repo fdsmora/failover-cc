@@ -11,8 +11,9 @@ class BaseServer(HTTPServer, ABC):
     pass
   
   def die(self, errmsg):
-      errmsg = "{}:ERR:{}".format(self.name, errmsg)
+      errmsg = "\n{}:ERR:{}".format(self.name, errmsg)
       print(errmsg)
+      sys.exit(1)
 
 class BaseHandler(BaseHTTPRequestHandler, ABC):
   def do_HEAD(self):
@@ -22,6 +23,8 @@ class BaseHandler(BaseHTTPRequestHandler, ABC):
     response = self.handle_GET()
     status = 200
     content_type = "text/plain"
+    if not response:
+        response = "No response from server"
     self.wfile.write(bytes(response, "UTF-8"))
 
   def get_action(self):

@@ -30,8 +30,9 @@ class ApplicationHandler(BaseHandler):
         action = self.get_action()
     
         response = ""
-        if action == 'spit':
-            response = "I AM APPLICATION"
+        if action == "die":
+            self.server.die("Requested to die. Farewell...")
+        
         return response
 
     def set_role(self, role):

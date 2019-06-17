@@ -36,4 +36,4 @@ class MonitorHandler(BaseHandler):
         server = self.server
         primary_url = "http://{}:{}".format(server.primary["hostname"], server.primary["port"])
         out, err = shell(CURL, "-i", primary_url + "/die")
-        response = "ACTION: kill-primary \n OUT: %s \n ERR: %s" % (action, out, err) 
+        return "ACTION: kill-primary \n OUT: %s \n ERR: %s\n" % (out, err) 
