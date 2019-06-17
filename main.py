@@ -9,7 +9,7 @@ HOST_NAME = 'localhost'
 
 def start_monitor(port, primary, standby):
     with MonitorServer((HOST_NAME, port), MonitorHandler) as monitor:
-        print(time.asctime(), 'Server UP - %s:%s' % (HOST_NAME, port))
+        print(time.asctime(), 'Monitor server UP - %s:%s' % (HOST_NAME, port))
         monitor.register_app(primary, standby)
         try:    
             monitor.serve_forever()
@@ -18,7 +18,7 @@ def start_monitor(port, primary, standby):
 
 def start_instance(port):
     with ApplicationServer((HOST_NAME, port), ApplicationHandler) as app1:
-        print(time.asctime(), 'Server UP - %s:%s' % (HOST_NAME, port))
+        print(time.asctime(), 'Application server UP - %s:%s' % (HOST_NAME, port))
         app1.initialize(PRIMARY)
         try:    
             app1.serve_forever()

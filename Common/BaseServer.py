@@ -1,6 +1,6 @@
 #!/usr/bin/python
 import sys
-from http.server import HTTPServer
+from http.server import HTTPServer, BaseHTTPRequestHandler
 from abc import ABC, abstractmethod, abstractproperty
 from urllib.parse import urlparse
 from Common.PostHelper import PostHelper
@@ -13,7 +13,6 @@ class BaseServer(HTTPServer, ABC):
   def die(self, errmsg):
       errmsg = "{}:ERR:{}".format(self.name, errmsg)
       print(errmsg)
-
 
 class BaseHandler(BaseHTTPRequestHandler, ABC):
   def do_HEAD(self):
@@ -51,7 +50,3 @@ class BaseHandler(BaseHTTPRequestHandler, ABC):
   def handle_GET(self):
     pass
     
-  def die(self, errmsg):
-      errmsg = "{}:ERR:{}".format(self.name, errmsg)
-      print(errmsg)
-      sys.exit(1)

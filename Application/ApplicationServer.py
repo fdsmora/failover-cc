@@ -3,6 +3,8 @@ from Common.Utils import test_data, PRIMARY, STANDBY
 from Common.BaseServer import BaseServer, BaseHandler
 
 class ApplicationServer(BaseServer):
+    name = "ApplicationServer"
+
     def initialize(self,role):
         if role == PRIMARY:
            self._data = test_data

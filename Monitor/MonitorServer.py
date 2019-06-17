@@ -6,24 +6,23 @@ CURL = "/usr/bin/curl"
 
 class MonitorServer(BaseServer):
     name = "MonitorServer"
-    
+    '''    
     def __init__(self):
         super().__init__()
         self.primary = None
         self.standby = None
+   '''
 
     def register_app(self,primary, standby):
         if primary and standby:
             self.primary = primary
             self.standby = standby
            #debug
-            print ("SUCCESSFULLY REGISTERED\nprim: {}:{}\nstby:{}{}".format(primary['hostname'], primary['port'], standby['hostname'], standby['port']))
+            print ("SUCCESSFULLY REGISTERED\nprim: {}:{}\nstby: {}:{}".format(primary['hostname'], primary['port'], standby['hostname'], standby['port']))
         else:
             self.die("Primary instance and standby instance must be registered together")
 
 class MonitorHandler(BaseHandler):
-    name = "MonitorHandler"
-    
     def handle_POST(self):
         print (self.form)
     
