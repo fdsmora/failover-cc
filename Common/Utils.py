@@ -27,6 +27,9 @@ test_data =  {
 
 
 def shell(*args):
+#debug
+    debug_str = " ".join(args)
+    print (debug_str)
     proc = subprocess.Popen(args, stdout=subprocess.PIPE)
     out, err = proc.communicate()
     return out, err

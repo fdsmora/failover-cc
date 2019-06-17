@@ -16,10 +16,10 @@ def start_monitor(port, primary, standby):
         except KeyboardInterrupt:
             pass
 
-def start_instance(port):
+def start_instance(port, role, standby=None):
     with ApplicationServer((HOST_NAME, port), ApplicationHandler) as app1:
         print(time.asctime(), 'Application server UP - %s:%s' % (HOST_NAME, port))
-        app1.initialize(PRIMARY)
+        app1.initialize(role, standby)
         try:    
             app1.serve_forever()
         except KeyboardInterrupt:
@@ -30,7 +30,9 @@ if __name__ == '__main__':
     stdby1_info = { "port" : 8082, "hostname" : "localhost" } 
 
     monitor = Process(target=start_monitor, args=(8080,prim1_info, stdby1_info))
-    app1 = Process(target=start_instance, args=(8081,))
+    app1 = Process(target=start_instance, args=(8081,PRIMARY, stdby1_info))
+    stdby = Process(target=start_instance, args=(8082,STANDBY,))
     monitor.start()
     app1.start()
+    stdby.start()
 

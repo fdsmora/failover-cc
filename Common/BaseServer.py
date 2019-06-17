@@ -13,16 +13,19 @@ class BaseServer(HTTPServer, ABC):
   def name(self):
     pass
   
-  def submit_to_host(self, hostname, port, action, method, form=None):
+  def submit_to_host(self, hostname, port, action, method, form=None, json=False):
       url = "http://{}:{}".format(hostname, port)
       out, err = ("","") 
       if method == "GET":
           out, err = shell(CURL, "-i", url + "/" + action)
       else:
-          form_str = " -F ".join("{!s}={!r}".format(key,val) for (key,val) in form.items())
+          if json:
+              out, err = shell(CURL, "-X", "POST", url + "/" + action, "-d", form , "-H", "Content-Type: application/json")
+          else:
+              form_str = " -F ".join("{!s}={!r}".format(key,val) for (key,val) in form.items())
           #debug
           #print("DEBUG: FORM_STR: " + form_str)
-          out, err = shell(CURL, url + "/" + action, "-F", form_str)
+              out, err = shell(CURL, url + "/" + action, "-F", form_str)
         
       return out, err
 
@@ -49,6 +52,8 @@ class BaseHandler(BaseHTTPRequestHandler, ABC):
     return action
     
   def do_POST(self):
+#debug
+    print ("{}->do_POST ".format(self.server.name))
     postHelper = PostHelper(self)
     self.form=postHelper.getForm()
     response = self.handle_POST()
