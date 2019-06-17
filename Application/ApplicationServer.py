@@ -20,7 +20,7 @@ class ApplicationServer(BaseServer):
   
     def update(self,_map):
 #debug
-        print ("{}->update, _map is : {}".format(self.name, _map))
+ #       print ("{}->update, _map is : {}".format(self.name, _map))
         for k,v in _map.items():
             if k in self._data:
                 self._data[k] = v

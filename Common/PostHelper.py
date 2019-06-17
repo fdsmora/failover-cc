@@ -15,11 +15,11 @@ class PostHelper():
         form = dict()
         cgiForm = self.cgiForm
 #debug
-        print("CGIFORM " + str(cgiForm))
+ #       print("CGIFORM " + str(cgiForm))
         for field in cgiForm.keys():
             field_item = cgiForm[field]
 #debug
-            print ("FIELD: %s \n FIELD_ITEM: %s" % (field, field_item))
+#            print ("FIELD: %s \n FIELD_ITEM: %s" % (field, field_item))
             if field_item.filename:
                 form[field]=field_item.filename
             else:
@@ -49,7 +49,7 @@ class PostHelper():
         for field in form.keys():
             field_item = form[field]
 #debug
-            print ("FIELD: %s \n FIELD_ITEM: %s" % (field, field_item))
+ #           print ("FIELD: %s \n FIELD_ITEM: %s" % (field, field_item))
             if field_item.filename:
                 # The field contains an uploaded file
                 file_data = field_item.file.read()

@@ -17,7 +17,7 @@ class BaseServer(HTTPServer, ABC):
       url = "http://{}:{}".format(hostname, port)
       out, err = ("","") 
       if method == "GET":
-          out, err = shell(CURL, "-i", url + "/" + action)
+          out, err = shell(CURL, [ "-i", url + "/" + action])
       else:
           if json:
               out, err = shell(CURL, "-X", "POST", url + "/" + action, "-d", form , "-H", "Content-Type: application/json")
@@ -27,7 +27,7 @@ class BaseServer(HTTPServer, ABC):
               args.extend( form_str.split(" "))
               
           #debug
-              print("DEBUG: FORM_STR: " + str(form_str))
+           #   print("DEBUG: FORM_STR: " + str(form_str))
               out, err = shell(CURL, args)
         
       return out, err
@@ -56,7 +56,7 @@ class BaseHandler(BaseHTTPRequestHandler, ABC):
     
   def do_POST(self):
 #debug
-    print ("{}->do_POST ".format(self.server.name))
+ #   print ("{}->do_POST ".format(self.server.name))
     postHelper = PostHelper(self)
     self.form=postHelper.getForm()
     response = self.handle_POST()

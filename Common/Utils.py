@@ -29,7 +29,7 @@ test_data =  {
 def shell(cmd, args):
 #debug
     #debug_str = " ".join(args)
-#    print (str(args))
+ #   print (str(args))
     args.insert(0,cmd)
     proc = subprocess.Popen(args, stdout=subprocess.PIPE)
     out, err = proc.communicate()

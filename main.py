@@ -25,7 +25,7 @@ def start_instance(port, role, standby=None):
         except KeyboardInterrupt:
             pass
 
-if __name__ == '__main__':
+def startup():
     prim1_info  = { "port" : 8081, "hostname" : "localhost" } 
     stdby1_info = { "port" : 8082, "hostname" : "localhost" } 
 
@@ -36,3 +36,6 @@ if __name__ == '__main__':
     app1.start()
     stdby.start()
 
+
+if __name__ == '__main__':
+    startup()
