@@ -5,35 +5,40 @@ from Application.ApplicationServer import ApplicationServer, ApplicationHandler
 from multiprocessing import Process
 from Common.Utils import PRIMARY, STANDBY
 
-HOST_NAME = 'localhost'
+HOSTNAME = 'localhost'
 
 def start_monitor(port, primary, standby):
-    with MonitorServer((HOST_NAME, port), MonitorHandler) as monitor:
-        monitor.register_app(primary, standby)
-        print(time.asctime(), monitor.name + ' UP - %s:%s' % (HOST_NAME, port))
+    with MonitorServer((HOSTNAME, port), primary, standby, MonitorHandler ) as monitor:
+#        monitor.register_hosts(monitor=monitor, primary=primary_info, standby=standby_info)
+        print(time.asctime(), monitor.name + ' UP - %s:%s' % (HOSTNAME, port))
         try:    
             monitor.serve_forever()
         except KeyboardInterrupt:
             pass
 
-def start_instance(port, role, standby=None):
-    with ApplicationServer((HOST_NAME, port), ApplicationHandler) as app1:
-        app1.initialize(role, standby)
-        print(time.asctime(), app1.name + ' UP - %s:%s' % (HOST_NAME, port))
+def start_instance(port, monitor, primary=None, standby=None):
+    with ApplicationServer((HOSTNAME, port),  monitor, primary, standby, ApplicationHandler) as app:
+#        app.register_hosts(monitor=monitor, primary=primary_info, standby=standby_info)
+#        app.set_role(role)
+        print(time.asctime(), app.name + ' UP - %s:%s' % (HOSTNAME, port))
         try:    
-            app1.serve_forever()
+            app.serve_forever()
         except KeyboardInterrupt:
             pass
 
 def startup():
-    prim1_info  = { "port" : 8081, "hostname" : "localhost" } 
-    stdby1_info = { "port" : 8082, "hostname" : "localhost" } 
+    primary_port = 8084
+    standby_port = 8087
+    monitor_port = 8080 
+    monitor_info= { "port" : monitor_port, "hostname" : HOSTNAME, "name":"monitor" } 
+    prim1_info  = { "port" : primary_port, "hostname" : HOSTNAME, "name":"app1" } 
+    stdby_info = { "port" : standby_port, "hostname" : HOSTNAME, "name":"app2" } 
 
-    monitor = Process(target=start_monitor, args=(8080,prim1_info, stdby1_info))
-    app1 = Process(target=start_instance, args=(8081,PRIMARY, stdby1_info))
-    stdby = Process(target=start_instance, args=(8082,STANDBY,))
+    monitor = Process(target=start_monitor, args=(monitor_port,), kwargs={"primary":prim1_info, "standby":stdby_info})
+    prim = Process(target=start_instance, args=(primary_port,) , kwargs={"monitor":monitor_info, "standby":stdby_info})
+    stdby = Process(target=start_instance, args=(standby_port,), kwargs={"monitor":monitor_info, "primary":prim1_info})
     monitor.start()
-    app1.start()
+    prim.start()
     stdby.start()
 
 

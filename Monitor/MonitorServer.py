@@ -4,12 +4,11 @@ from Common.BaseServer import BaseServer, BaseHandler
 
 class MonitorServer(BaseServer):
     name = "MonitorServer"
-    '''    
-    def __init__(self):
-        super().__init__()
-        self.primary = None
-        self.standby = None
-   '''
+    def __init__(self, hostport, primary, standby, handler):
+        super().__init__(hostport,handler)
+        print("MONITOR ARGUMENTS")
+        print (primary)
+        print (standby)
 
     def register_app(self,primary, standby):
         if primary and standby:

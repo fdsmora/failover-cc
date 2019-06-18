@@ -5,11 +5,17 @@ from Common.BaseServer import BaseServer, BaseHandler
 
 class ApplicationServer(BaseServer):
     name = "ApplicationServer"
+
+    def __init__(self, hostport, monitor, primary, standby, handler):
+        super().__init__(hostport, handler)
+        self._data = test_data
+        print("ARGUMENTS")
+        print (monitor)
+        print (primary)
+        print (standby)
  
     def initialize(self,role,standby=None):
         self._data = test_data
-        self.standby = standby
-        self.set_role(role)
         self.name = role + ":ApplicationServer"
 
     def set_role(self, role):

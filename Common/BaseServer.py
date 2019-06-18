@@ -69,6 +69,11 @@ class BaseHandler(BaseHTTPRequestHandler, ABC):
     if not response:
         response = "No response from server"
     self.wfile.write(bytes(response,"UTF-8"))
+ 
+  def register_hosts(**hosts):
+    this.monitor = hosts["monitor"]
+    this.standby = hosts["standby"]
+    this.primary = hosts["primary"]
 
   @abstractmethod
   def handle_POST(self):
