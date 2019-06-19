@@ -1,0 +1,11 @@
+#!/bin/bash
+
+pyc="python -m py_compile"
+
+$pyc ./client
+$pyc ./main.py
+$pyc ./Common/BaseServer.py
+$pyc ./Common/Utils.py
+$pyc ./Common/PostHelper.py
+$pyc ./Application/ApplicationServer.py
+$pyc ./Monitor/MonitorServer.py

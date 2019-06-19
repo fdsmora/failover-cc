@@ -1,7 +1,9 @@
 #!/usr/bin/python
 import json
-from Common.Utils import test_data, PRIMARY, STANDBY
+from time import sleep
+from Common.Utils import test_data, PRIMARY, STANDBY, epoch_now
 from Common.BaseServer import BaseServer, BaseHandler
+from multiprocessing import Process
 
 class ApplicationServer(BaseServer):
     name = "ApplicationServer"
@@ -17,11 +19,25 @@ class ApplicationServer(BaseServer):
             self.set_role(PRIMARY)
         elif self.primary and not self.standby:
             self.set_role(STANDBY)
-        print ("{} MY ROLE IS {} MONITOR IS {} ".format(self.name, self.get_role(), self.monitor))
+
+        self.start_heartbeat()
+
+    def start_heartbeat(self):
+        heartbeat = Process(target=self.heartbeat)        
+        heartbeat.start()
+        print ("KICKOFF HB END")
+
+    def heartbeat(self):
+        while (True):
+            monitor = self.monitor
+            out, err = self.GET_to_host(monitor["hostname"], monitor["port"], "hearbeat", server_name=self.name, role=self.get_role(), timestamp=epoch_now())
+            print("HB, OUT: {} ERR:{}".format(out,err))
+            sleep(3)
+#        print ("{} MY ROLE IS {} MONITOR IS {} ".format(self.name, self.get_role(), self.monitor))
  
-    def initialize(self,role,standby=None):
-        self._data = test_data
-        self.name = role + ":ApplicationServer"
+#    def initialize(self,role,standby=None):
+#        self._data = test_data
+#        self.name = role + ":ApplicationServer"
 
     def set_role(self, role):
         self._role = role

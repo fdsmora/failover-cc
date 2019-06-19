@@ -1,13 +1,14 @@
 #!/usr/bin/python
 from Common.BaseServer import BaseServer, BaseHandler
+from threading import Lock
 
 class MonitorServer(BaseServer):
     name = "MonitorServer"
 
-#    def __init__(self, hostport, primary, standby, handler):
-#        super().__init__(hostport,handler)
-#        self.primary = primary
-#        self.standby = standby
+    def __init__(self, *args):
+        super().__init__(*args)
+        self.primary_heartbeat = { "server_name" : "", "role" : "", "timestamp" : 0 }
+        self.hb_lock = None
 
     '''
     def register_app(self,primary, standby):
@@ -32,6 +33,14 @@ class MonitorServer(BaseServer):
         out, err = self.submit_to_host(primary_host, primary_port, "update", "POST", form)
         return "ACTION: update \n OUT: %s \n ERR: %s\n" % (out, err) 
 
+    def update_heartbeat(self, server_name, role, timestamp):
+        with Lock() as self.hb_lock:
+            self.primary_heartbeat["server_name"] = server_name
+            self.primary_heartbeat["role"] = role 
+            self.primary_heartbeat["timestamp"] = timestamp
+            print ("{}, heartbeat received: {}".format(self.name, self.primary_heartbeat))
+         
+
 class MonitorHandler(BaseHandler):
     def handle_POST(self):
         action = self.get_action()
@@ -42,8 +51,10 @@ class MonitorHandler(BaseHandler):
     def handle_GET(self):
         action = self.get_action()
    
-        if action == 'kill-primary':
+        if action == "kill-primary":
             return self.server.kill_primary()
+        elif action == "hearbeat":
+            return self.server.update_heartbeat(**self.query_string)
     
          
 

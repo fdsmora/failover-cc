@@ -1,11 +1,13 @@
 #!/usr/bin/python
 import subprocess
+from datetime import datetime
 
 PRIMARY = "primary"
 STANDBY = "standby"
 PRIMARY_PORT = 8084
 STANDBY_PORT = 8087
 MONITOR_PORT = 8080 
+CURL = "/usr/bin/curl"
 
 test_data =  {
     "id": "5d06aabffca870c0de76aa79",
@@ -38,3 +40,6 @@ def shell(cmd, args):
     out, err = proc.communicate()
     return out, err
 
+# return current time epoch in milliseconds
+def epoch_now():
+    return int(datetime.now().timestamp()*1000)

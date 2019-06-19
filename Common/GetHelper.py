@@ -1,7 +1,26 @@
 #!/usr/bin/python
 from urllib.parse import urlparse
+from Common.Utils import shell, CURL
 
-class GETHANDLER(object):
+class GetHelper(object):
+    def __init__(self, request):
+        self.request = request
+    
+    def submit_to_host(self, hostname, port, action, **values):
+        url = "http://{}:{}".format(hostname, port)
+        querystring = "&".join(["%s=%s" % (x[0],x[1]) for x in values.items()] )
+#debug
+        print ("QUERYSTRING IS : " + querystring)
+        out, err = shell(CURL, [ "-i", url + "/" + action + "?" + querystring])
+        return out, err
+   
+    def get_qs_values(self):
+        parsed_path = urlparse(self.request.path)
+        qs = parsed_path.geturl().split("?")[1]
+        value_pairs = qs.split("&")
+        value_pairs = dict([ x.split("=") for x in value_pairs]) 
+        return value_pairs
+    '''
     @staticmethod
     def handle(request):
         status = 200
@@ -38,3 +57,4 @@ class GETHANDLER(object):
         request.end_headers()
 
         return bytes(message, "UTF-8")
+    '''
