@@ -27,9 +27,9 @@ def start_instance(port, server_name, monitor=None, primary=None, standby=None):
             pass
 
 def startup():
-    monitor_info= { "port" : MONITOR_PORT, "hostname" : HOSTNAME, "name":"monitor" } 
-    prim1_info  = { "port" : PRIMARY_PORT, "hostname" : HOSTNAME, "name":"app1" } 
-    stdby_info = { "port" : STANDBY_PORT, "hostname" : HOSTNAME, "name":"app2" } 
+    monitor_info= { "port" : MONITOR_PORT, "hostname" : HOSTNAME, "server_name":"monitor" } 
+    prim1_info  = { "port" : PRIMARY_PORT, "hostname" : HOSTNAME, "server_name":"app1" } 
+    stdby_info = { "port" : STANDBY_PORT, "hostname" : HOSTNAME, "server_name":"app2" } 
 
     monitor = Process(target=start_monitor, args=(MONITOR_PORT, "monitor"), kwargs={"primary":prim1_info, "standby":stdby_info})
     prim = Process(target=start_instance, args=(PRIMARY_PORT,"app1") , kwargs={"monitor":monitor_info, "standby":stdby_info})

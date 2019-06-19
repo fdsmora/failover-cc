@@ -6,6 +6,7 @@ from urllib.parse import urlparse
 from Common.PostHelper import PostHelper
 from Common.GetHelper import GetHelper
 from Common.Utils import shell, CURL
+from datetime import datetime
 
 
 class BaseServer(HTTPServer, ABC):
@@ -55,9 +56,12 @@ class BaseServer(HTTPServer, ABC):
       self.primary = self.standby
       self.standby = tmp
 
-  def logmsg(self, msg, role=""):
+  def logmsg(self, msg, role="", timestamp=False):
       role = "(%s)" % role if role else ""
-      print("{}{}:{}".format(self.name, role, msg))
+      ts = ""
+      if timestamp:
+          ts = "{}:".format(datetime.now())
+      print("{}{}{}:{}".format(ts, self.name, role, msg))
 
   def die(self, errmsg):
       errmsg = "\n{}:ERR:{}".format(self.name, errmsg)

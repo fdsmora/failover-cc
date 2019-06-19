@@ -3,41 +3,37 @@ import json
 from time import sleep
 from Common.Utils import test_data, PRIMARY, STANDBY, epoch_now, HB_FRECUENCY 
 from Common.BaseServer import BaseServer, BaseHandler
-from multiprocessing import Process
+from threading import Thread
 
 class ApplicationServer(BaseServer):
     name = "ApplicationServer"
 
-#    def __init__(self, hostport, monitor, primary, standby, handler):
     def __init__(self, *args):
         super().__init__(*args)
- #       self.monitor = monitor
- #       self.primary = primary
- #       self.standby = standby
         self._data = test_data
         if self.standby and not self.primary:
             self.set_role(PRIMARY)
         elif self.primary and not self.standby:
             self.set_role(STANDBY)
 
-        self.start_heartbeat()
+        self.logmsg("Server up and running", self.get_role())
+
+        self.heartbeat_run = None
+        if self.get_role() == PRIMARY:
+            self.start_heartbeat()
 
     def start_heartbeat(self):
-        heartbeat = Process(target=self.heartbeat)        
-        heartbeat.start()
-        print ("KICKOFF HB END")
+        self.heartbeat_run = Thread(target=self.heartbeat)        
+        self.heartbeat_run.start()
 
     def heartbeat(self):
+        self.logmsg("Starting heartbeating", self.get_role(), True)
         while (True):
             monitor = self.monitor
-            out, err = self.GET_to_host(monitor["hostname"], monitor["port"], "hearbeat", server_name=self.name, role=self.get_role(), timestamp=epoch_now())
-#            print("HB, OUT: {} ERR:{}".format(out,err))
+            ts = epoch_now()
+            self.logmsg("heartbeat (server_name:{}, role:{}, timestamp:{}) emitted to {}:{}".format(self.name, self.get_role(), ts, monitor["hostname"], monitor["port"] ), self.get_role(), True)
+            out, err = self.GET_to_host(monitor["hostname"], monitor["port"], "heartbeat", server_name=self.name, role=self.get_role(), timestamp=ts)
             sleep(HB_FRECUENCY)
-#        print ("{} MY ROLE IS {} MONITOR IS {} ".format(self.name, self.get_role(), self.monitor))
- 
-#    def initialize(self,role,standby=None):
-#        self._data = test_data
-#        self.name = role + ":ApplicationServer"
 
     def set_role(self, role):
         self._role = role
@@ -74,10 +70,16 @@ class ApplicationServer(BaseServer):
  
     def failover(self):
         self.switch_role()
-        if self.get_role() == PRIMARY:
-           self.set_role(STANDBY)
-        else:
+        if self.get_role() == STANDBY:
            self.set_role(PRIMARY)
+           self.logmsg("Starting as primary", self.get_role())
+           self.start_heartbeat()
+        else:
+           self.set_role(STANDBY)
+           self.logmsg("Starting as standby", self.get_role())
+           # For now, heartbeat of standby is not supported, so we stop it
+           if self.heartbeat_run:
+               self.heartbeat_run.join()
         self.logmsg("Failover peformed, I am now a " + self.get_role())
 
 class ApplicationHandler(BaseHandler):
