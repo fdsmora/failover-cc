@@ -218,7 +218,7 @@ app2(primary):Starting as primary
 app2:Failover peformed, I am now a primary
 monitor:Request to host app2 for failover completed
 
-The heartbeat cycle is renews
+The heartbeat cycle is resumed
 
 2019-06-19 11:09:50.868356:monitor:heartbeat received: {'server_name': 'app2', 'role': 'primary', 'timestamp': '1560960590858'}
 2019-06-19 11:09:51.870470:app2(primary):heartbeat (server_name:app2, role:primary, timestamp:1560960591870) emitted to localhost:8080
