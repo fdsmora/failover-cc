@@ -16,18 +16,6 @@ class MonitorServer(BaseServer):
         self.failover_on = False 
         hb_monitoring = Thread(target=self.monitor_heartbeat)
         hb_monitoring.start()
-                
-
-    '''
-    def register_app(self,primary, standby):
-        if primary and standby:
-            self.primary = primary
-            self.standby = standby
-           #debug
-            print ("SUCCESSFULLY REGISTERED\nprim: {}:{}\nstby: {}:{}".format(primary['hostname'], primary['port'], standby['hostname'], standby['port']))
-        else:
-            self.die("Primary instance and standby instance must be registered together")
-    '''
 
     def kill_primary(self):
         primary_host = self.primary["hostname"]
@@ -42,17 +30,24 @@ class MonitorServer(BaseServer):
         return "ACTION: update \n OUT: %s \n ERR: %s\n" % (out, err) 
 
     def monitor_heartbeat(self):
-        retries = HB_RETRIES
         # allow sometime for primary to startup
         sleep(3)        
         while True:
+            retries = HB_RETRIES
             while retries>0:
                 ts = self.primary_heartbeat["timestamp"]
+
+                sname = self.primary_heartbeat["server_name"]
+                r = self.primary_heartbeat["role"]
+
                 diff = epoch_now() - int(ts)
                 if diff  < HB_TIMEOUT:
+                 #debug
                     retries = HB_RETRIES
                 else:
+                    self.logmsg("EXPIRED hb FROM {},{} , RETRYING".format(sname, r))
                     retries-=1
+                    sleep(2)
          
             self.logmsg("Failed to detect recent heartbeat from primary, performing failover...")
             # if no hearbeat detected from primary, then it's considered failed
@@ -75,7 +70,9 @@ class MonitorServer(BaseServer):
         self.failover_on = True 
         # Wait for a little to simulate a noticable failover window
         sleep(3)
-        self.failover_to_host(self.standby)
+        out, err = self.failover_to_host(self.standby)
+        if not out:
+            self.die("Failover failed. Nothing to do")
         # update host-role registry
         self.switch_role()
         # Wait a little bit more
@@ -84,10 +81,13 @@ class MonitorServer(BaseServer):
           
     def failover_to_host(self, host):
         out, err = self.GET_to_host(host["hostname"], host["port"], "failover") 
-        if not err:
-            self.logmsg("Requested host {} to run failover. Done".format(host["server_name"]))
+#debug
+       # self.logmsg("GET TO HOST OUT:{} ERR:{}".format(out, err))
+        if out:
+            self.logmsg("Request to host {} for failover completed".format(host["server_name"]))
         else:
             self.logmsg("ERROR while trying to do failover on host {}:{}".format(host["server_name"], err))
+        return out, err
 
 class MonitorHandler(BaseHandler):
     def handle_POST(self):

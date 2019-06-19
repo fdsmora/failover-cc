@@ -40,10 +40,12 @@ def shell(cmd, args):
     #debug_str = " ".join(args)
     #print (str(args))
     args.insert(0,cmd)
-    FNULL = open(os.devnull, 'w')
-    with open(os.devnull, 'w') as FNULL:
-        proc = subprocess.Popen(args, stdout=FNULL)
-        out, err = proc.communicate()
+  #  FNULL = open(os.devnull, 'w')
+  #  with open(os.devnull, 'w') as FNULL:
+  #      proc = subprocess.Popen(args, stdout=FNULL)
+  #      out, err = proc.communicate()
+    proc = subprocess.Popen(args, stdout=subprocess.PIPE)
+    out, err = proc.communicate()
     return out, err
 
 # return current time epoch in milliseconds
