@@ -42,8 +42,6 @@ class ApplicationServer(BaseServer):
         return self._role
   
     def update(self,_map):
-#debug
- #       print ("{}->update, _map is : {}".format(self.name, _map))
         for k,v in _map.items():
             if k in self._data:
                 self._data[k] = v
@@ -84,11 +82,11 @@ class ApplicationServer(BaseServer):
 
 class ApplicationHandler(BaseHandler):
     def handle_POST(self):
-    #    print ('App: handling POST')
         out = ""
         action = self.get_action()
+
         if action == "update" and self.server.get_role() == PRIMARY:
-            self.server.update(self.form)
+            out = self.server.update(self.form)
         if action == "sync" and self.server.get_role() == STANDBY:
             out = self.server.sync(self.form)
         return out

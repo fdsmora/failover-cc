@@ -5,8 +5,8 @@ from datetime import datetime
 
 PRIMARY = "primary"
 STANDBY = "standby"
-PRIMARY_PORT = 8084
-STANDBY_PORT = 8087
+STANDBY_PORT = 8082
+PRIMARY_PORT = 8081
 MONITOR_PORT = 8080 
 CURL = "/usr/bin/curl"
 HB_TIMEOUT = 3000 # milliseconds

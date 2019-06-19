@@ -26,6 +26,8 @@ class MonitorServer(BaseServer):
     def submit_update(self, form):
         primary_host = self.primary["hostname"]
         primary_port = self.primary["port"]
+#debug
+ #       self.logmsg("UPDATING TO PRIMARY {}{} NAMED {} WITH INFO {}".format(primary_host, primary_port, self.primary["server_name"], form))
         out, err = self.submit_to_host(primary_host, primary_port, "update", "POST", form)
         return "ACTION: update \n OUT: %s \n ERR: %s\n" % (out, err) 
 
@@ -56,7 +58,7 @@ class MonitorServer(BaseServer):
     def update_heartbeat(self, server_name, role, timestamp):
         # First check if this heartbeat is from a primary that died but came back to life, so to avoid having two primaries, let it know that it's now an standby
  #debug
-        self.logmsg("update_heartbeat: my primary server name is " + self.primary["server_name"] + " and hb server_name is " + server_name + "with role " + role )
+#        self.logmsg("update_heartbeat: my primary server name is " + self.primary["server_name"] + " and hb server_name is " + server_name + "with role " + role )
         if self.primary["server_name"] != server_name:
             self.failover_to_host(self.standby)
         with Lock() as self.hb_lock:
@@ -69,7 +71,7 @@ class MonitorServer(BaseServer):
         self.logmsg("starting failover")
         self.failover_on = True 
         # Wait for a little to simulate a noticable failover window
-        sleep(3)
+        sleep(5)
         out, err = self.failover_to_host(self.standby)
         if not out:
             self.die("Failover failed. Nothing to do")
@@ -81,8 +83,6 @@ class MonitorServer(BaseServer):
           
     def failover_to_host(self, host):
         out, err = self.GET_to_host(host["hostname"], host["port"], "failover") 
-#debug
-       # self.logmsg("GET TO HOST OUT:{} ERR:{}".format(out, err))
         if out:
             self.logmsg("Request to host {} for failover completed".format(host["server_name"]))
         else:

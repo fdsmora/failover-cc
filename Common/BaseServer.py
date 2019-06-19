@@ -38,8 +38,6 @@ class BaseServer(HTTPServer, ABC):
               args = [ "-o" , "/dev/null", "-s", url + "/" + action]
               args.extend( form_str.split(" "))
               
-          #debug
-           #   print("DEBUG: FORM_STR: " + str(form_str))
               out, err = shell(CURL, args)
         
       return out, err
@@ -89,8 +87,6 @@ class BaseHandler(BaseHTTPRequestHandler, ABC):
     return action
     
   def do_POST(self):
-#debug
- #   print ("{}->do_POST ".format(self.server.name))
     postHelper = PostHelper(self)
     self.form=postHelper.getForm()
     response = self.handle_POST()
