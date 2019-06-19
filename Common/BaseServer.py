@@ -28,13 +28,13 @@ class BaseServer(HTTPServer, ABC):
       url = "http://{}:{}".format(hostname, port)
       out, err = ("","") 
       if method == "GET":
-          out, err = shell(CURL, [ "-i", url + "/" + action])
+          out, err = shell(CURL, ["-o" , "/dev/null", "-s",  url + "/" + action])
       else:
           if json:
-              out, err = shell(CURL, "-X", "POST", url + "/" + action, "-d", form , "-H", "Content-Type: application/json")
+              out, err = shell(CURL, "-o" , "/dev/null", "-s", "-X", "POST", url + "/" + action, "-d", form , "-H", "Content-Type: application/json")
           else:
               form_str = " -F " + " -F ".join("{!s}={!r}".format(key,val) for (key,val) in form.items())
-              args = [url + "/" + action]
+              args = [ "-o" , "/dev/null", "-s", url + "/" + action]
               args.extend( form_str.split(" "))
               
           #debug
@@ -49,6 +49,15 @@ class BaseServer(HTTPServer, ABC):
     this.standby = hosts["standby"]
     this.primary = hosts["primary"]
   '''
+
+  def switch_role(self):
+      tmp = self.primary
+      self.primary = self.standby
+      self.standby = tmp
+
+  def logmsg(self, msg, role=""):
+      role = "(%s)" % role if role else ""
+      print("{}{}:{}".format(self.name, role, msg))
 
   def die(self, errmsg):
       errmsg = "\n{}:ERR:{}".format(self.name, errmsg)

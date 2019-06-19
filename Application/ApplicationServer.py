@@ -1,7 +1,7 @@
 #!/usr/bin/python
 import json
 from time import sleep
-from Common.Utils import test_data, PRIMARY, STANDBY, epoch_now
+from Common.Utils import test_data, PRIMARY, STANDBY, epoch_now, HB_FRECUENCY 
 from Common.BaseServer import BaseServer, BaseHandler
 from multiprocessing import Process
 
@@ -31,8 +31,8 @@ class ApplicationServer(BaseServer):
         while (True):
             monitor = self.monitor
             out, err = self.GET_to_host(monitor["hostname"], monitor["port"], "hearbeat", server_name=self.name, role=self.get_role(), timestamp=epoch_now())
-            print("HB, OUT: {} ERR:{}".format(out,err))
-            sleep(3)
+#            print("HB, OUT: {} ERR:{}".format(out,err))
+            sleep(HB_FRECUENCY)
 #        print ("{} MY ROLE IS {} MONITOR IS {} ".format(self.name, self.get_role(), self.monitor))
  
 #    def initialize(self,role,standby=None):
@@ -71,6 +71,14 @@ class ApplicationServer(BaseServer):
 
     def get_state(self):
         return str(self._data)
+ 
+    def failover(self):
+        self.switch_role()
+        if self.get_role() == PRIMARY:
+           self.set_role(STANDBY)
+        else:
+           self.set_role(PRIMARY)
+        self.logmsg("Failover peformed, I am now a " + self.get_role())
 
 class ApplicationHandler(BaseHandler):
     def handle_POST(self):
@@ -91,6 +99,8 @@ class ApplicationHandler(BaseHandler):
             self.server.die("Requested to die. Farewell...")
         elif action == "get-state" :
             response = self.server.get_state()
+        elif action == "failover" : 
+            response = self.server.failover()
         
         return response
 

@@ -1,5 +1,6 @@
 #!/usr/bin/python
 import subprocess
+import os
 from datetime import datetime
 
 PRIMARY = "primary"
@@ -8,6 +9,9 @@ PRIMARY_PORT = 8084
 STANDBY_PORT = 8087
 MONITOR_PORT = 8080 
 CURL = "/usr/bin/curl"
+HB_TIMEOUT = 3200 # milliseconds
+HB_RETRIES = 2
+HB_FRECUENCY = 3 # seconds
 
 test_data =  {
     "id": "5d06aabffca870c0de76aa79",
@@ -36,8 +40,10 @@ def shell(cmd, args):
     #debug_str = " ".join(args)
  #   print (str(args))
     args.insert(0,cmd)
-    proc = subprocess.Popen(args, stdout=subprocess.PIPE)
-    out, err = proc.communicate()
+    FNULL = open(os.devnull, 'w')
+    with open(os.devnull, 'w') as FNULL:
+        proc = subprocess.Popen(args, stdout=FNULL)
+        out, err = proc.communicate()
     return out, err
 
 # return current time epoch in milliseconds

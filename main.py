@@ -10,7 +10,7 @@ HOSTNAME = 'localhost'
 def start_monitor(port, server_name, monitor=None, primary=None, standby=None):
     with MonitorServer((HOSTNAME, port), server_name, monitor, primary, standby, MonitorHandler ) as monitor_srv:
 #        monitor.register_hosts(monitor=monitor, primary=primary_info, standby=standby_info)
-        print(time.asctime(), monitor_srv.name + ' UP - %s:%s' % (HOSTNAME, port))
+#        print(time.asctime(), monitor_srv.name + ' UP - %s:%s' % (HOSTNAME, port))
         try:    
             monitor_srv.serve_forever()
         except KeyboardInterrupt:
@@ -20,7 +20,7 @@ def start_instance(port, server_name, monitor=None, primary=None, standby=None):
     with ApplicationServer((HOSTNAME, port), server_name,  monitor, primary, standby, ApplicationHandler) as app:
 #        app.register_hosts(monitor=monitor, primary=primary_info, standby=standby_info)
 #        app.set_role(role)
-        print(time.asctime(), app.name + ' UP - %s:%s' % (HOSTNAME, port))
+#        print(time.asctime(), app.name + ' UP - %s:%s' % (HOSTNAME, port))
         try:    
             app.serve_forever()
         except KeyboardInterrupt:

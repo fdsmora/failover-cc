@@ -10,13 +10,16 @@ class GetHelper(object):
         url = "http://{}:{}".format(hostname, port)
         querystring = "&".join(["%s=%s" % (x[0],x[1]) for x in values.items()] )
 #debug
-        print ("QUERYSTRING IS : " + querystring)
-        out, err = shell(CURL, [ "-i", url + "/" + action + "?" + querystring])
+#        print ("QUERYSTRING IS : " + querystring)
+        out, err = shell(CURL, ["-o", "/dev/null", "-s", url + "/" + action + "?" + querystring])
         return out, err
    
     def get_qs_values(self):
         parsed_path = urlparse(self.request.path)
-        qs = parsed_path.geturl().split("?")[1]
+        qs = parsed_path.geturl().split("?")
+        if len(qs) < 2: 
+            return None 
+        qs = qs[1]
         value_pairs = qs.split("&")
         value_pairs = dict([ x.split("=") for x in value_pairs]) 
         return value_pairs
