@@ -21,8 +21,11 @@ Currently only these operations are supported:
 4. FAILOVER . If operation 2. is performed, the monitor will detect that primary is down (because it no longer receives heartbeats from the primary) and it will automatically run the failover, causing the standby to become primary, so it starts sending heartbeats to the monitor, processing client requests and replicating this requests to the former primary. 
 
 Pending features to implement:
+
 . Have more than one instance running as primary.
+
 . Load balancing between primary instances.
+
 . Restart 'dead' primary so that it becomes immediately an standby (although code in the monitor is implemented to handle that, only it's pending to implement the code to make dead primary come back to life).
 
 Data in the web servers
