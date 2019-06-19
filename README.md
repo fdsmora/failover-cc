@@ -18,7 +18,7 @@ Currently only these operations are supported:
 1. Update request to the primary
 2. 'kill' the primary instance
 3. get the status of the data from the primary instance and the standby instance. This is useful for checking that after an 'udpdate' request, the data in the standby is correctly updated. 
-4. FAILOVER . If operation 2. is performed, the monitor will detect that primary is down (because it no longer receives heartbeats from the primary) and it will automatically run the failover, causing the standby to become primary, so it starts sending heartbeats to the monitor, processing client requests and replicating this requests to the former primary. 
+4. FAILOVER . If operation 2. is performed, the monitor will detect that primary is down (because it no longer receives heartbeats from the primary) and it will automatically run the failover, causing the standby to become primary, so it starts sending heartbeats to the monitor, processing client requests and replicating this requests to the former primary. Also, during failover, there's a maintenance window and if the client submits requests, it will receive a message saying that a failover is going on. 
 
 Pending features to implement:
 
