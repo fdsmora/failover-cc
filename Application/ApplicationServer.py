@@ -6,13 +6,18 @@ from Common.BaseServer import BaseServer, BaseHandler
 class ApplicationServer(BaseServer):
     name = "ApplicationServer"
 
-    def __init__(self, hostport, monitor, primary, standby, handler):
-        super().__init__(hostport, handler)
+#    def __init__(self, hostport, monitor, primary, standby, handler):
+    def __init__(self, *args):
+        super().__init__(*args)
+ #       self.monitor = monitor
+ #       self.primary = primary
+ #       self.standby = standby
         self._data = test_data
-        print("ARGUMENTS")
-        print (monitor)
-        print (primary)
-        print (standby)
+        if self.standby and not self.primary:
+            self.set_role(PRIMARY)
+        elif self.primary and not self.standby:
+            self.set_role(STANDBY)
+        print ("{} MY ROLE IS {} MONITOR IS {} ".format(self.name, self.get_role(), self.monitor))
  
     def initialize(self,role,standby=None):
         self._data = test_data

@@ -9,6 +9,13 @@ from Common.Utils import shell
 CURL = "/usr/bin/curl"
 
 class BaseServer(HTTPServer, ABC):
+
+  def __init__(self, hostport, monitor, primary, standby, handler):
+    super().__init__(hostport,handler)
+    self.monitor = monitor
+    self.primary = primary
+    self.standby = standby
+
   @abstractproperty
   def name(self):
     pass

@@ -1,15 +1,15 @@
 #!/usr/bin/python
 from Common.BaseServer import BaseServer, BaseHandler
 
-
 class MonitorServer(BaseServer):
     name = "MonitorServer"
-    def __init__(self, hostport, primary, standby, handler):
-        super().__init__(hostport,handler)
-        print("MONITOR ARGUMENTS")
-        print (primary)
-        print (standby)
 
+#    def __init__(self, hostport, primary, standby, handler):
+#        super().__init__(hostport,handler)
+#        self.primary = primary
+#        self.standby = standby
+
+    '''
     def register_app(self,primary, standby):
         if primary and standby:
             self.primary = primary
@@ -18,6 +18,7 @@ class MonitorServer(BaseServer):
             print ("SUCCESSFULLY REGISTERED\nprim: {}:{}\nstby: {}:{}".format(primary['hostname'], primary['port'], standby['hostname'], standby['port']))
         else:
             self.die("Primary instance and standby instance must be registered together")
+    '''
 
     def kill_primary(self):
         primary_host = self.primary["hostname"]

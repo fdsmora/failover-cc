@@ -3,7 +3,7 @@ import sys
 #from optparse import OptionParser
 import argparse
 from main import startup        
-from Common.Utils import shell
+from Common.Utils import shell, PRIMARY_PORT, STANDBY_PORT, MONITOR_PORT
 from Common.BaseServer import CURL
 
 
@@ -23,15 +23,12 @@ parser.add_argument('-file',  help='File with map that will update', required=Fa
 parser.add_argument('-get_state',  help="returns the state of the data map in the specified server. Options are 'primary' and 'standby'. This is useful to check if after the update operation in the primary the data was correctly replicated to the standby ", required=False)
 
 url = "http://localhost:{0}"
-monitor_port = 8080
-primary_port = 8081
-standby_port = 8082
 
 args = parser.parse_args()
 
 
 if args.kill_primary:
-    url = url.format(monitor_port)
+    url = url.format(MONITOR_PORT)
     url = "{0}/kill-primary".format(url)
     args = ["-i", url]
     shell(CURL, args )
@@ -44,7 +41,7 @@ elif args.update:
         entries = f.readlines() 
         entries = [x.strip() for x in entries]
     form_str = "-F " + " -F ".join(entries)
-    url = url.format(monitor_port)
+    url = url.format(MONITOR_PORT)
     url = "{0}/update".format(url)
     args = [url]
     args.extend(form_str.split(" "))
@@ -52,7 +49,7 @@ elif args.update:
     print(out)
     
 elif args.get_state:
-    port = primary_port if args.get_state == 'primary' else standby_port
+    port = PRIMARY_PORT if args.get_state == 'primary' else STANDBY_PORT
     url = url.format(port)
     url = "{0}/get-state".format(url)
     args = ["-i", url]
