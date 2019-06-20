@@ -18,8 +18,15 @@ Currently only these operations are supported:
 1. Update request to the primary
 2. 'kill' the primary instance
 3. get the status of the data from the primary instance and the standby instance. This is useful for checking that after an 'udpdate' request, the data in the standby is correctly updated. 
+4. FAILOVER . If operation 2. is performed, the monitor will detect that primary is down (because it no longer receives heartbeats from the primary) and it will automatically run the failover, causing the standby to become primary, so it starts sending heartbeats to the monitor, processing client requests and replicating this requests to the former primary. Also, during failover, there's a maintenance window and if the client submits requests, it will receive a message saying that a failover is going on. 
 
-Unfortunately I ran out of time before implementing the 'failover' and the 'load balancing' features. 
+Pending features to implement:
+
+. Have more than one instance running as primary.
+
+. Load balancing between primary instances.
+
+. Restart 'dead' primary so that it becomes immediately an standby (although code in the monitor is implemented to handle that, only it's pending to implement the code to make dead primary come back to life).
 
 Data in the web servers
 
@@ -33,6 +40,29 @@ Each web server is run as a separate process within my host.
 
 Communication between all of these entities is by curl GET and POST HTTP calls. 
 
+Failover design and implementation
+
+Failover works by having the primary instance send periodic heartbeats to the monitor server. As soon as the monitor boots up, it will start checking for heartbeats from the primary. A hearbeat in the monitor is received as an HTTP get with query string parameters: 
+1) Name of the server
+2) Role, which should be primary
+3) Timestamp (epoch) of the heartbeat generation at the primary.
+
+The monitor receives the GET and uses de heartbeat timestamp to update an internal variable. A separate thread in the monitor periodically checks for the age of the last heartbeat received and if it's beyond certain age, then it's considered expired, but will run a number of retries to see if a new heartbeat arrives. If not, then primary is considered to be failed and failover is triggered. These are the steps of failover:
+
+Monitor
+1. Updates it's registry by switching the primary to standby and viceversa.
+2. Submits a requests for the standby to do failover
+3. Starts listening again for heartbeats
+
+Standby
+1. Receives a failover request from monitor
+2. Updates it's role to be primary and updates it's known standby to be now primary.
+3. Starts heartbeating (only the primary heartbeats)
+
+Primary
+As it's dead, the only thing that could  happen is that it's restarted. If that happens, it should begin as primary and start sending heartbeats to the monitor. However, after failover, the monitor considers it to be an standby, so if it recieves a heartbeat from it, it will trigger a failover requests so that it becomes standby. The 'restart' of 'dead' primary is pending to implement. 
+
+
 How to use
 
 1. In a linux terminal, run the 'main.py' script, which will boot the three servers, which start listening for incomming connections immediately. 
@@ -42,13 +72,22 @@ Example:
 
 Start the web servers:
 
-[fausto@fausto-lap failover-cc]$ ./main.py 
-Mon Jun 17 02:40:05 2019 standby:ApplicationServer UP - localhost:8082
-SUCCESSFULLY REGISTERED
-prim: localhost:8081
-stby: localhost:8082
-Mon Jun 17 02:40:05 2019 MonitorServer UP - localhost:8080
-Mon Jun 17 02:40:05 2019 primary:ApplicationServer UP - localhost:8081
+[fausto@fausto-lap failover-cc]$ ./main.py
+app2(standby):Server up and running
+app1(primary):Server up and running
+2019-06-19 11:08:35.876237:app1(primary):Starting heartbeating
+2019-06-19 11:08:35.876413:app1(primary):heartbeat (server_name:app1, role:primary, timestamp:1560960515876) emitted to localhost:8080
+2019-06-19 11:08:35.885889:monitor:heartbeat received: {'server_name': 'app1', 'role': 'primary', 'timestamp': '1560960515876'}
+2019-06-19 11:08:36.887949:app1(primary):heartbeat (server_name:app1, role:primary, timestamp:1560960516887) emitted to localhost:8080
+2019-06-19 11:08:36.904747:monitor:heartbeat received: {'server_name': 'app1', 'role': 'primary', 'timestamp': '1560960516887'}
+2019-06-19 11:08:37.908539:app1(primary):heartbeat (server_name:app1, role:primary, timestamp:1560960517908) emitted to localhost:8080
+2019-06-19 11:08:37.923816:monitor:heartbeat received: {'server_name': 'app1', 'role': 'primary', 'timestamp': '1560960517908'}
+2019-06-19 11:08:38.925853:app1(primary):heartbeat (server_name:app1, role:primary, timestamp:1560960518925) emitted to localhost:8080
+2019-06-19 11:08:38.940343:monitor:heartbeat received: {'server_name': 'app1', 'role': 'primary', 'timestamp': '1560960518925'}
+2019-06-19 11:08:39.947144:app1(primary):heartbeat (server_name:app1, role:primary, timestamp:1560960519947) emitted to localhost:8080
+2019-06-19 11:08:39.968189:monitor:heartbeat received: {'server_name': 'app1', 'role': 'primary', 'timestamp': '1560960519947'}
+
+Notice that the hearbeats generation from the primary and the monitor receiving the heartbeats. 
 
 Playing with the client:
 
@@ -151,4 +190,39 @@ Show that the standby is still up and running. Failover should automatically eng
 b'{\'id\': "\'999\'", \'index\': \'0\', \'guid\': \'8c6af915-c68b-4263-912a-08c56557acc0\', \'isActive\': \'True\', \'balance\': \'$3,029.87\', \'picture\': \'http://placehold.it/32x32\', \'age\': \'25\', \'eyeColor\': \'blue\', \'name\': "\'Paola\'", \'gender\': \'female\', \'company\': \'VERTON\', \'email\': \'ceciliamorgan@verton.com\', \'phone\': \'+1 (983) 578-2433\', \'address\': \'523 Miami Court, Starks, Minnesota, 2078\', \'about\': \'Proident sint ea incididunt et ea ipsum Lorem occaecat nostrud adipisicing elit. Nulla veniam non elit enim magna esse dolore incididunt non velit. Reprehenderit cillum duis reprehenderit nostrud consequat eu sunt ea magna voluptate fugiat eiusmod. Id id reprehenderit in id excepteur. Exercitation ullamco do esse officia quis quis.\\r\\n\', \'registered\': \'2019-01-09T03:13:07 +06:00\', \'latitude\': \'-8.768006\', \'longitude\': \'-103.11563\'}'
 
 
+FAILOVER
+
+kill the client
+
+[fausto@fausto-lap failover-cc]$ ./client -kill-primary
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100    44    0    44    0     0     44      0 --:--:-- --:--:-- --:--:--   880
+
+
+Now the system performs failover
+
+2019-06-19 11:09:35.828171:monitor:heartbeat received: {'server_name': 'app1', 'role': 'primary', 'timestamp': '1560960575802'}                       
+2019-06-19 11:09:36.836161:app1(primary):heartbeat (server_name:app1, role:primary, timestamp:1560960576836) emitted to localhost:8080                
+2019-06-19 11:09:36.856657:monitor:heartbeat received: {'server_name': 'app1', 'role': 'primary', 'timestamp': '1560960576836'}                       
+                                                                                                                                                      
+app1:ERR:Requested to die. Farewell...                                                                                                                
+monitor:EXPIRED hb FROM app1,primary , RETRYING                                                                                                       
+monitor:EXPIRED hb FROM app1,primary , RETRYING                                                                                                       
+monitor:EXPIRED hb FROM app1,primary , RETRYING                                                                                                       
+monitor:Failed to detect recent heartbeat from primary, performing failover...                                                                        
+monitor:starting failover                                                                                                                             
+app2(primary):Starting as primary
+2019-06-19 11:09:50.858149:app2(primary):Starting heartbeating
+2019-06-19 11:09:50.858231:app2(primary):heartbeat (server_name:app2, role:primary, timestamp:1560960590858) emitted to localhost:8080
+app2:Failover peformed, I am now a primary
+monitor:Request to host app2 for failover completed
+
+The heartbeat cycle is resumed
+
+2019-06-19 11:09:50.868356:monitor:heartbeat received: {'server_name': 'app2', 'role': 'primary', 'timestamp': '1560960590858'}
+2019-06-19 11:09:51.870470:app2(primary):heartbeat (server_name:app2, role:primary, timestamp:1560960591870) emitted to localhost:8080
+2019-06-19 11:09:51.885768:monitor:heartbeat received: {'server_name': 'app2', 'role': 'primary', 'timestamp': '1560960591870'}
+2019-06-19 11:09:52.887860:app2(primary):heartbeat (server_name:app2, role:primary, timestamp:1560960592887) emitted to localhost:8080
+2019-06-19 11:09:52.902347:monitor:heartbeat received: {'server_name': 'app2', 'role': 'primary', 'timestamp': '1560960592887'}
 
