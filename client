@@ -58,7 +58,7 @@ elif args.get_state:
         sys.exit(1)
     url = url.format(MONITOR_PORT)
     url = "{}/get_state?role={}".format(url, role)
-    args = ["-i", url]
+    args = ["-s", "-i", url]
     out, err =shell(CURL, args )
     print (out)
    

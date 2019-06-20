@@ -111,7 +111,7 @@ class MonitorHandler(BaseHandler):
         action = self.get_action()
 
         if action != "heartbeat" and self.server.failover_on:
-            return "The system is under maintenance. Please retry later"
+            return "THE SYSTEM IS UNDER MAINTENANCE. PLEASE RETRY LATER"
 
         if action == "kill-primary":
             return self.server.kill_primary()

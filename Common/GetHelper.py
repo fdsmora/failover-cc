@@ -9,11 +9,7 @@ class GetHelper(object):
     def submit_to_host(self, hostname, port, action, **values):
         url = "http://{}:{}".format(hostname, port)
         querystring = "&".join(["%s=%s" % (x[0],x[1]) for x in values.items()] )
-#debug
-        if action=="get_state":
-            print ("***QUERY_STRING " + querystring)
         out, err = shell(CURL, [ "-s", url + "/" + action + "?" + querystring])
- #       out, err = shell(CURL, ["-o", "/dev/null", "-s", url + "/" + action + "?" + querystring, "2>&1"])
         return out, err
    
     def get_qs_values(self):
