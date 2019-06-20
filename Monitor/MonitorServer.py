@@ -89,10 +89,18 @@ class MonitorServer(BaseServer):
             self.logmsg("ERROR while trying to do failover on host {}:{}".format(host["server_name"], err))
         return out, err
 
+    def get_state(self, role):
+        if role == "primary":
+            host = self.primary
+        elif role == "standby":
+            host = self.standby
+        out, err = self.GET_to_host(host["hostname"], host["port"], "get_state")
+        return out
+
 class MonitorHandler(BaseHandler):
     def handle_POST(self):
         if self.server.failover_on:
-            return "The system is under maintenance. Please retry later"
+            return "THE SYSTEM IS UNDER MAINTENANCE. PLEASE RETRY LATER"
 
         action = self.get_action()
         if action == "update":
@@ -109,6 +117,9 @@ class MonitorHandler(BaseHandler):
             return self.server.kill_primary()
         elif action == "heartbeat":
             return self.server.update_heartbeat(**self.query_string)
+        elif action == "get_state":
+            rsp = self.server.get_state(self.query_string["role"])
+            return str(rsp)
     
          
 

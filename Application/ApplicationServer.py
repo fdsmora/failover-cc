@@ -97,7 +97,7 @@ class ApplicationHandler(BaseHandler):
         response = ""
         if action == "die":
             self.server.die("Requested to die. Farewell...")
-        elif action == "get-state" :
+        elif action == "get_state" :
             response = self.server.get_state()
         elif action == "failover" : 
             response = self.server.failover()

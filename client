@@ -2,7 +2,7 @@
 import sys
 #from optparse import OptionParser
 import argparse
-from main import startup        
+from main import startup
 from Common.Utils import shell, PRIMARY_PORT, STANDBY_PORT, MONITOR_PORT
 from Common.BaseServer import CURL
 
@@ -20,7 +20,7 @@ The command will print the updated map from the server, which is returned from i
 
 parser.add_argument('-update',  help=update_help, required=False, action="store_true")
 parser.add_argument('-file',  help='File with map that will update', required=False)
-parser.add_argument('-get_state',  help="returns the state of the data map in the specified server. Options are 'primary' and 'standby'. This is useful to check if after the update operation in the primary the data was correctly replicated to the standby ", required=False)
+parser.add_argument('-get_state',  help="returns the state of the data map in the specified server. ROLE can be 'primary' or 'standby'. This is useful to check if after the update operation in the primary the data was correctly replicated to the standby ", required=False, metavar="ROLE")
 
 url = "http://localhost:{0}"
 
@@ -50,16 +50,15 @@ elif args.update:
     
 elif args.get_state:
     if args.get_state == 'primary':
-        port = PRIMARY_PORT
+        role = "primary" 
     elif args.get_state == 'standby':
-        port = STANDBY_PORT
+        role = "standby" 
     else:
         print ("Bad get_state parameter, allowed values are 'primary' or 'standby'")
         sys.exit(1)
-    url = url.format(port)
-    url = "{0}/get-state".format(url)
+    url = url.format(MONITOR_PORT)
+    url = "{}/get_state?role={}".format(url, role)
     args = ["-i", url]
     out, err =shell(CURL, args )
     print (out)
-    print ("NOTE: CLIENT IS NOT YET UPDATED WITH RESPECT TO WHO IS PRIMARY OR STANDBY AFTER A FAILOVER, SO IF YOU GET STATE FROM PRIMARY, YOU SHOULD PASS STANDBY AND YOU SHOULD KEEP TRACK OF THAT. THIS IS TO BE FIXED SOON.")
-    
+   

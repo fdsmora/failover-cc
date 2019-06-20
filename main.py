@@ -7,6 +7,7 @@ from Common.Utils import PRIMARY, STANDBY, PRIMARY_PORT, STANDBY_PORT, MONITOR_P
 
 HOSTNAME = 'localhost'
 
+
 def start_monitor(port, server_name, monitor=None, primary=None, standby=None):
     with MonitorServer((HOSTNAME, port), server_name, monitor, primary, standby, MonitorHandler ) as monitor_srv:
 #        monitor.register_hosts(monitor=monitor, primary=primary_info, standby=standby_info)
