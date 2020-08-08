@@ -11,7 +11,7 @@ parser = argparse.ArgumentParser(description='client to test the failover code c
 #parser = OptionParser(description='client to test the failover code challenge')
 parser.add_argument('-kill-primary',  help='kills the primary instance',  required=False, action="store_true")
 
-update_help = ''' Updates the entries map in the application instance with the corresponding entires specified in -file=update_file. The -file parameter is required. The keys that can be updated are: id, index, guid, isActive, balance, picture, age, eyeColor, name, about, registered, latitude, longitude. The values can be any string and the entries to be updated have to be each entrie per line and the key separated by an equal sign from the value.  This is an example of the contents of 'update_file' where 'id' and 'name' entries are to be updated:
+update_help = ''' Updates the 'entries' map within the application instance with the corresponding entires specified in -file=update_file. The -file parameter IS REQUIRED. The keys that can be updated are: id, index, guid, isActive, balance, picture, age, eyeColor, name, about, registered, latitude, longitude. The values can be any string and the entries to be updated have to be each entrie per line and the key separated by an equal sign from the value.  This is an example of the contents of 'update_file' where 'id' and 'name' entries are to be updated:
 \n
 id=1234\n
 name=Fernanda \n
@@ -19,7 +19,7 @@ The command will print the updated map from the server, which is returned from i
 '''
 
 parser.add_argument('-update',  help=update_help, required=False, action="store_true")
-parser.add_argument('-file',  help='File with map that will update', required=False)
+parser.add_argument('-file',  help='File that includes the map to be updated', required=False)
 parser.add_argument('-get_state',  help="returns the state of the data map in the specified server. ROLE can be 'primary' or 'standby'. This is useful to check if after the update operation in the primary the data was correctly replicated to the standby ", required=False, metavar="ROLE")
 
 url = "http://localhost:{0}"
