@@ -70,7 +70,7 @@ As it's dead, the only thing that could  happen is that it's restarted. If that 
 
 How to use
 
-1. In a linux terminal, run the 'main.py' script, which will boot the three servers, which start listening for incomming connections immediately. 
+1. In a linux terminal, run the 'main.py' script, which will boot the three servers, which start listening for incoming connections immediately. 
 2. In a separate terminal, run the 'client' script. For usage, please run 'client -h'. 
 
 Example:
@@ -194,16 +194,14 @@ Shows that the standby is still up and running. Failover should automatically en
 100  1644    0  1644    0     0   1644      0 --:--:-- --:--:-- --:--:--  321k
 b'{\'id\': "\'999\'", \'index\': \'0\', \'guid\': \'8c6af915-c68b-4263-912a-08c56557acc0\', \'isActive\': \'True\', \'balance\': \'$3,029.87\', \'picture\': \'http://placehold.it/32x32\', \'age\': \'25\', \'eyeColor\': \'blue\', \'name\': "\'Paola\'", \'gender\': \'female\', \'company\': \'VERTON\', \'email\': \'ceciliamorgan@verton.com\', \'phone\': \'+1 (983) 578-2433\', \'address\': \'523 Miami Court, Starks, Minnesota, 2078\', \'about\': \'Proident sint ea incididunt et ea ipsum Lorem occaecat nostrud adipisicing elit. Nulla veniam non elit enim magna esse dolore incididunt non velit. Reprehenderit cillum duis reprehenderit nostrud consequat eu sunt ea magna voluptate fugiat eiusmod. Id id reprehenderit in id excepteur. Exercitation ullamco do esse officia quis quis.\\r\\n\', \'registered\': \'2019-01-09T03:13:07 +06:00\', \'latitude\': \'-8.768006\', \'longitude\': \'-103.11563\'}'
 
-
 FAILOVER
 
-kill the client
+kill the primary
 
 [fausto@fausto-lap failover-cc]$ ./client -kill-primary
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
                                  Dload  Upload   Total   Spent    Left  Speed
 100    44    0    44    0     0     44      0 --:--:-- --:--:-- --:--:--   880
-
 
 Now the system performs failover
 
